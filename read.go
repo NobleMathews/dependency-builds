@@ -1,18 +1,24 @@
 package main
 
+/*
+#include <stdlib.h>
+*/
+import "C"
 import (
-	"C"
+	"strings"
+	"unsafe"
 
 	"golang.org/x/mod/modfile"
 )
 
 //export getDepVer
-func getDepVer(file []byte) (string, string, string, []string, error) {
+func getDepVer(filePtr *C.char) *C.char {
 	// Analyzes go.mod contents for Dependency-Analyzer
 	// go build -buildmode=c-shared -o _gomod.so
-	f, err := modfile.Parse("", file, nil)
+	file := C.GoString(filePtr)
+	f, err := modfile.Parse("", []byte(file), nil)
 	if err != nil {
-		return "", "", "", []string{}, err
+		return C.CString("")
 	}
 	dep_ver := []string{}
 	for _, dep := range f.Require {
@@ -28,7 +34,10 @@ func getDepVer(file []byte) (string, string, string, []string, error) {
 		modPathVer = f.Module.Mod.Path + ";" + f.Module.Mod.Version
 		modDeprecated = f.Module.Deprecated
 	}
-	return minimum_go_version, modPathVer, modDeprecated, dep_ver, nil
+	retString := minimum_go_version + ";" + modPathVer + ";" + modDeprecated + ";" + strings.Join(dep_ver, ";")
+	cstr := C.CString(retString)
+	defer C.free(unsafe.Pointer(cstr))
+	return cstr
 }
 
 func main() {}
