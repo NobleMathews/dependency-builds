@@ -13,11 +13,11 @@ import (
 )
 
 type goMod struct {
-	min_go_ver    string
-	modPath       string
-	modVer        string
-	modDeprecated string
-	dep_ver       []string
+	Min_go_ver    string
+	ModPath       string
+	ModVer        string
+	ModDeprecated string
+	Dep_ver       []string
 }
 
 //export getDepVer
