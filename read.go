@@ -5,11 +5,19 @@ package main
 */
 import "C"
 import (
-	"strings"
+	"encoding/json"
 	"unsafe"
 
 	"golang.org/x/mod/modfile"
 )
+
+type goMod struct {
+	min_go_ver    string
+	modPath       string
+	modVer        string
+	modDeprecated string
+	dep_ver       []string
+}
 
 //export getDepVer
 func getDepVer(filePtr *C.char) *C.char {
@@ -26,16 +34,22 @@ func getDepVer(filePtr *C.char) *C.char {
 			dep_ver = append(dep_ver, dep.Mod.Path+";"+dep.Mod.Version)
 		}
 	}
-	var minimum_go_version, modPathVer, modDeprecated string
+	var min_go_ver, modPath, modVer, modDeprecated string
 	if f.Go != nil {
-		minimum_go_version = f.Go.Version
+		min_go_ver = f.Go.Version
 	}
 	if f.Module != nil {
-		modPathVer = f.Module.Mod.Path + ";" + f.Module.Mod.Version
+		modPath = f.Module.Mod.Path
+		modVer = f.Module.Mod.Version
 		modDeprecated = f.Module.Deprecated
 	}
-	retString := minimum_go_version + ";" + modPathVer + ";" + modDeprecated + ";" + strings.Join(dep_ver, ";")
-	cstr := C.CString(retString)
+	// retString := min_go_ver + ";" + modPathVer + ";" + modDeprecated + ";" + strings.Join(dep_ver, ";")
+	retJson := goMod{min_go_ver, modPath, modVer, modDeprecated, dep_ver}
+	retString, err := json.Marshal(retJson)
+	if err != nil {
+		return C.CString("")
+	}
+	cstr := C.CString(string(retString))
 	return cstr
 }
 
