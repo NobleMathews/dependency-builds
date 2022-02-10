@@ -2,23 +2,15 @@ package main
 
 import (
 	"C"
-	"io/ioutil"
-	"strings"
 
 	"golang.org/x/mod/modfile"
 )
 
 //export getDepVer
-func getDepVer(file string) (string, string, string, []string, error) {
+func getDepVer(file []byte) (string, string, string, []string, error) {
 	// Analyzes go.mod contents for Dependency-Analyzer
 	// go build -buildmode=c-shared -o _gomod.so
-	modfilename := strings.TrimSpace(string(file))
-	data, err := ioutil.ReadFile(modfilename)
-	if err != nil {
-		return "", "", "", []string{}, err
-	}
-
-	f, err := modfile.Parse(modfilename, data, nil)
+	f, err := modfile.Parse("", file, nil)
 	if err != nil {
 		return "", "", "", []string{}, err
 	}
