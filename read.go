@@ -5,8 +5,7 @@ package main
 */
 import "C"
 import (
-	"bytes"
-	"encoding/gob"
+	"encoding/json"
 	"unsafe"
 
 	"golang.org/x/mod/modfile"
@@ -45,12 +44,11 @@ func getDepVer(filePtr *C.char) *C.char {
 		modDeprecated = f.Module.Deprecated
 	}
 	retStruct := goMod{min_go_ver, modPath, modVer, modDeprecated, dep_ver}
-	var b bytes.Buffer
-	e := gob.NewEncoder(&b)
-	if err := e.Encode(retStruct); err != nil {
+	out, err := json.Marshal(retStruct)
+	if err != nil {
 		return C.CString("")
 	}
-	cstr := C.CString(b.String())
+	cstr := C.CString(string(out))
 	return cstr
 }
 
