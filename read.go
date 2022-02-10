@@ -36,8 +36,12 @@ func getDepVer(filePtr *C.char) *C.char {
 	}
 	retString := minimum_go_version + ";" + modPathVer + ";" + modDeprecated + ";" + strings.Join(dep_ver, ";")
 	cstr := C.CString(retString)
-	defer C.free(unsafe.Pointer(cstr))
 	return cstr
+}
+
+//export freeCByte
+func freeCByte(b unsafe.Pointer) {
+	C.free(b)
 }
 
 func main() {}

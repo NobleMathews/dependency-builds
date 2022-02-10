@@ -74,6 +74,7 @@ extern "C" {
 #endif
 
 extern __declspec(dllexport) char* getDepVer(char* filePtr);
+extern __declspec(dllexport) void freeCByte(void* b);
 
 #ifdef __cplusplus
 }
